@@ -407,4 +407,4 @@ Future enhancements you (or recruiters) can imagine:
 
 ## 📄 License
 
-MIT (or any license you prefer).
+MIT
