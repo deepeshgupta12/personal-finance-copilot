@@ -1,0 +1,13 @@
+timestamp,amount,currency,description,source,account_name,is_income,category
+2025-01-01 09:15:00,75000,INR,January Salary,Bank Transfer,HDFC Salary Account,True,Salary
+2025-01-02 10:30:00,450.75,INR,Zomato lunch,UPI,HDFC UPI,False,Food
+2025-01-03 20:10:00,1200.00,INR,Swiggy dinner,UPI,HDFC UPI,False,Food
+2025-01-05 18:45:00,899.00,INR,Netflix subscription,Credit Card,ICICI Credit Card,False,Subscriptions
+2025-01-06 11:05:00,1500.00,INR,Uber rides,UPI,HDFC UPI,False,Transport
+2025-01-08 15:20:00,2500.00,INR,Shopping at H&M,Credit Card,ICICI Credit Card,False,Shopping
+2025-02-01 09:15:00,75000,INR,February Salary,Bank Transfer,HDFC Salary Account,True,Salary
+2025-02-02 08:30:00,250.00,INR,Starbucks coffee,UPI,HDFC UPI,False,Food
+2025-02-03 21:00:00,1800.00,INR,Dinner with friends,UPI,HDFC UPI,False,Food
+2025-02-05 19:10:00,999.00,INR,Spotify subscription,Credit Card,ICICI Credit Card,False,Subscriptions
+2025-02-09 12:00:00,3200.00,INR,Amazon order,Credit Card,ICICI Credit Card,False,Shopping
+2025-02-15 10:00:00,5000.00,INR,Freelance payment,UPI,UPI Wallet,True,Side Income

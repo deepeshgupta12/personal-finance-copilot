@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual env
+.venv/
+venv/
+env/
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Local data & artefacts
+*.db
+*.sqlite3
+*.log
+
+# Environment / secrets
+.env
+.env.*
+
+# Uvicorn / coverage / misc
+*.pid
+.coverage
+htmlcov/

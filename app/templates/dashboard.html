@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ title }}</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        margin: 0;
+        padding: 24px;
+        background: #f5f5f7;
+        color: #111827;
+      }
+
+      h1 {
+        margin-top: 0;
+        margin-bottom: 4px;
+      }
+
+      .subtitle {
+        margin-top: 0;
+        margin-bottom: 24px;
+        color: #6b7280;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+      }
+
+      .label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #9ca3af;
+        margin-bottom: 4px;
+      }
+
+      .value {
+        font-size: 1.2rem;
+        font-weight: 600;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        margin-top: 8px;
+      }
+
+      .badge-ok {
+        background: #ecfdf3;
+        color: #15803d;
+      }
+
+      .badge-warning {
+        background: #fffbeb;
+        color: #b45309;
+      }
+
+      .badge-critical {
+        background: #fef2f2;
+        color: #b91c1c;
+      }
+
+      .category-list,
+      .action-list,
+      .budget-list,
+      .trend-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .category-list li,
+      .budget-list li,
+      .trend-list li {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 0.9rem;
+      }
+
+      .action-list li {
+        padding: 6px 0;
+        font-size: 0.9rem;
+      }
+
+      .story-card {
+        white-space: pre-wrap;
+        line-height: 1.5;
+        font-size: 0.95rem;
+      }
+
+      .muted {
+        color: #9ca3af;
+        font-size: 0.8rem;
+      }
+
+      .selector-form {
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .selector-form select,
+      .selector-form button {
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        background: #ffffff;
+        font-size: 0.9rem;
+      }
+
+      .selector-form button {
+        background: #111827;
+        color: #ffffff;
+        border-color: #111827;
+        cursor: pointer;
+      }
+
+      .selector-form button:hover {
+        background: #1f2937;
+      }
+
+      code {
+        background: #e5e7eb;
+        padding: 2px 4px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+      }
+
+      .badge-under {
+        background: #ecfdf3;
+        color: #15803d;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+      }
+
+      .badge-near {
+        background: #fffbeb;
+        color: #b45309;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+      }
+
+      .badge-over {
+        background: #fef2f2;
+        color: #b91c1c;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Money Copilot – Monthly Story</h1>
+    <p class="subtitle">
+      A simple view of your month in money, built from your transactions.
+    </p>
+
+    {% if no_data %}
+    <p class="muted">
+      No transactions found for this user. Import your mock CSV via
+      <code>/transactions/import-csv</code> in <code>/docs</code> and then refresh
+      this page.
+    </p>
+    {% else %}
+
+    <!-- User + month selector -->
+    <form method="get" action="/dashboard" class="selector-form">
+      <span class="muted">User:</span>
+      <select name="user_id">
+        {% for u in user_list %}
+        <option value="{{ u.id }}"
+          {% if u.id == selected_user_id %}selected{% endif %}>
+          {{ u.name }}
+        </option>
+        {% endfor %}
+      </select>
+
+      <span class="muted">Month:</span>
+
+      <select name="year">
+        {% if period %}
+        {% set selected_year = period.split('-')[0] %}
+        {% else %}
+        {% set selected_year = None %}
+        {% endif %}
+        {% set years = [] %}
+        {% for p in available_periods %}
+          {% set y = p.split('-')[0] %}
+          {% if y not in years %}
+            {% set _ = years.append(y) %}
+          {% endif %}
+        {% endfor %}
+        {% for y in years %}
+        <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>
+          {{ y }}
+        </option>
+        {% endfor %}
+      </select>
+
+      <select name="month">
+        {% if period %}
+        {% set selected_month = period.split('-')[1] %}
+        {% else %}
+        {% set selected_month = None %}
+        {% endif %}
+        {% for m in range(1, 13) %}
+        {% set m_val = "%02d" % m %}
+        <option value="{{ m }}"
+          {% if m_val == selected_month %}selected{% endif %}>
+          {{ m_val }}
+        </option>
+        {% endfor %}
+      </select>
+
+      <button type="submit">Go</button>
+
+      {% if no_period_data %}
+      <span class="muted">
+        No data for {{ period }}. Try another month from the dropdown.
+      </span>
+      {% endif %}
+    </form>
+
+    {% if not no_period_data %}
+    <div class="grid">
+      <div class="card">
+        <div class="label">Month</div>
+        <div class="value">{{ period }}</div>
+
+        {% if patterns.cashflow_flag == "critical" %}
+        <div class="chip badge-critical">Cashflow critical</div>
+        {% elif patterns.cashflow_flag == "warning" %}
+        <div class="chip badge-warning">Cashflow warning</div>
+        {% else %}
+        <div class="chip badge-ok">Cashflow ok</div>
+        {% endif %}
+
+        {% if persona_label %}
+        <div class="muted" style="margin-top: 6px;">
+          Behaviour profile: <strong>{{ persona_label }}</strong>
+        </div>
+        {% if persona_description %}
+        <div class="muted">
+          {{ persona_description }}
+        </div>
+        {% endif %}
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <div class="label">Total Income</div>
+        <div class="value">
+          ₹{{ '{:,.0f}'.format(stats.total_income) }}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="label">Total Spent</div>
+        <div class="value">
+          ₹{{ '{:,.0f}'.format(stats.total_expense) }}
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="label">Net &amp; Savings Rate</div>
+        <div class="value">
+          ₹{{ '{:,.0f}'.format(stats.net) }} left
+        </div>
+        <div class="muted">
+          Savings rate: {{ '%.1f' % (stats.savings_rate * 100) }}%
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="label">Top Spending Categories</div>
+        <ul class="category-list">
+          {% for cat in top_categories %}
+          <li>
+            <span>{{ cat.category or "Uncategorised" }}</span>
+            <span>₹{{ '{:,.0f}'.format(cat.total_spend) }}</span>
+          </li>
+          {% endfor %}
+          {% if top_categories|length == 0 %}
+          <li>
+            <span class="muted">No major expenses recorded.</span>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="card story-card">
+        <div class="label">Your Money Story</div>
+        <div>{{ story }}</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="label">Patterns We Noticed</div>
+        {% set fees = patterns.high_fees %}
+        {% set spikes = patterns.impulse_spikes %}
+        {% set subs = patterns.subscriptions %}
+
+        <p>
+          <strong>Fees &amp; charges:</strong>
+          {% if fees.total > 0 %}
+          You paid about ₹{{ '{:,.0f}'.format(fees.total) }} in {{ fees.count }}
+          fee/charge transaction(s). Good candidates to reduce next month.
+          {% else %}
+          No meaningful fees or charges detected this month.
+          {% endif %}
+        </p>
+
+        <p>
+          <strong>Impulse spikes:</strong>
+          {% if spikes.days and spikes.extra_spend > 0 %}
+          Higher-than-usual spending on:
+          {{ spikes.days|join(', ') }} – roughly
+          ₹{{ '{:,.0f}'.format(spikes.extra_spend) }} above your normal pattern.
+          {% else %}
+          No strong spike days compared to your normal pattern.
+          {% endif %}
+        </p>
+
+        <p>
+          <strong>Subscriptions:</strong>
+          {% if subs.total > 0 %}
+          Subscriptions added up to about ₹{{ '{:,.0f}'.format(subs.total) }} in
+          {{ subs.count }} transaction(s). Worth checking if all are still used.
+          {% else %}
+          We didn’t detect notable subscription spending this month.
+          {% endif %}
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="label">What To Try Next Month</div>
+        <ul class="action-list">
+          {% for a in actions %}
+          <li>{{ a }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="label">Category Trends vs Typical Month</div>
+        <ul class="trend-list">
+          {% if category_trends and category_trends|length > 0 %}
+          {% for t in category_trends[:5] %}
+          <li>
+            <span>{{ t.category or "Uncategorised" }}</span>
+            <span>
+              ₹{{ '{:,.0f}'.format(t.current) }}
+              {% if t.baseline > 0 and t.delta_pct is not none %}
+                (
+                {% if t.delta > 0 %}
+                  +{{ '%.1f' % (t.delta_pct * 100) }}%
+                {% else %}
+                  {{ '%.1f' % (t.delta_pct * 100) }}%
+                {% endif %}
+                vs typical)
+              {% endif %}
+            </span>
+          </li>
+          {% endfor %}
+          {% else %}
+          <li>
+            <span class="muted">
+              Not enough history yet to compare this month with your typical
+              pattern.
+            </span>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="label">Budgets vs Actual</div>
+        <ul class="budget-list">
+          {% if budget_view and budget_view|length > 0 %}
+          {% for b in budget_view %}
+          <li>
+            <span>{{ b.category }}</span>
+            <span>
+              ₹{{ '{:,.0f}'.format(b.actual) }} / ₹{{ '{:,.0f}'.format(b.budget) }}
+              {% if b.status == "under" %}
+              <span class="badge-under">Under budget</span>
+              {% elif b.status == "near" %}
+              <span class="badge-near">On track</span>
+              {% else %}
+              <span class="badge-over">Over budget</span>
+              {% endif %}
+            </span>
+          </li>
+          {% endfor %}
+          {% else %}
+          <li>
+            <span class="muted">
+              No budgets configured for this user yet.
+            </span>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <p class="muted">
+      This dashboard is powered by your local mock data and a demo user. You can add
+      more users and imports to simulate different money personalities.
+    </p>
+  </body>
+</html>
