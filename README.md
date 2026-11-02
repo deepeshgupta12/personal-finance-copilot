@@ -407,4 +407,4 @@ Future enhancements you (or recruiters) can imagine:
 
 ## 📄 License
 
-MIT
+MIT © 2025 Deepesh Kumar Gupta. See [LICENSE](LICENSE) for details.
